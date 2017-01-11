@@ -26,6 +26,8 @@ var attackTimeout; //攻击间隔
 var monsterArr = [];
 var dragonBullet = [];
 var bossBullet = [];
+var boxArr = [];
+var dragonArr = [];  //为了方便碰撞计算
 var canAttack = false; //允许小龙发射子弹
 var drgonmove; //监控小龙的函数 用于setInterval
 var bulletMoveInter; //监听子弹移动的函数 setInterval
@@ -36,6 +38,7 @@ var timeInter;  //时间setInterval
     var direction = {left: false, right: false, up: false, down: false,attack:false}; //用于小龙操作
 //小龙创建
     dragon = new Plane(0, 400, '../images/dragon/small/stand.gif');
+    dragonArr.push(dragon);
     dragon.img.style.animation = 'moveStart .5s linear forwards';
     setTimeout(function () {
         dragon.img.style.left = '104px';
@@ -210,7 +213,7 @@ function createMonster(){
     var src = monsterSrc[monsterRandom][0];
     var monster = new Plane(1400,y,src);
     var speedX = parseInt(Math.random()*5)+2;
-    monster.speedY = parseInt(Math.random()*4)-2;
+    monster.speedY = parseInt(Math.random()*5)-2;
     monster.random = monsterRandom;
     monster.dead = false;
     monster.blood = (monsterRandom+1)*2;
@@ -227,14 +230,16 @@ function monsterMove(){
             contanier.removeChild(monsterArr[i].img);
             monsterArr.splice(i,1);
         }
-
     }
 }
 function monsterMoveY(){
     for(var i = 0 ; i < monsterArr.length; i++){
-        monsterArr[i].speedY = parseInt(Math.random()*4)-2;
-        if(parseInt(monsterArr[i].img.style.top)<=40 || parseInt(monsterArr[i].img.style.top)>=clientHeight-50){
-            monsterArr[i].speedY *= -1;
+        if(parseInt(monsterArr[i].img.style.top)<=40){
+            monsterArr[i].speedY = parseInt(Math.random()*(-2));
+        }else if(parseInt(monsterArr[i].img.style.top)>=clientHeight-50) {
+            monsterArr[i].speedY = parseInt(Math.random()*(2));
+        }else {
+            monsterArr[i].speedY = parseInt(Math.random()*5)-2;
         }
     }
 }
@@ -243,6 +248,41 @@ monsterCreateInter = setInterval(createMonster,3000); //创建怪
 monsterMoveInter = setInterval(monsterMove,20);     //怪移动
 monsterMoveYInter = setInterval(monsterMoveY,1000); //怪Y移动
 
+
+
+//初始化盒子
+function Box(x,y){
+    this.img = document.createElement('img');
+    this.img.src = '../images/enemy/thing.gif';
+    this.img.style.position = 'absolute';
+    this.img.style.left = x;
+    this.img.style.top = y;
+    this.dead = false;
+    this.speedX = parseInt(Math.random()*(-6))+3;
+    this.speedY= parseInt(Math.random()*2)-1;
+
+    this.move = function(){
+        this.img.style.left = parseInt(this.img.style.left) + this.speedX +'px';
+        this.img.style.top = parseInt(this.img.style.top) + this.speedY +'px';
+    };
+    contanier.appendChild(this.img);
+
+}
+
+function boxMove(){
+    for(var i = 0 ; i < boxArr.length; i++){
+        boxArr[i].move();
+        if(parseInt(boxArr[i].img.style.left)<=0
+            ||parseInt(boxArr[i].img.style.left)>=1366
+            ||parseInt(boxArr[i].img.style.top)>=700
+            ||parseInt(boxArr[i].img.style.top)<=0
+            ||boxArr[i].dead){
+            contanier.removeChild(boxArr[i].img);
+            boxArr.splice(i,1);
+        }
+    }
+}
+setInterval(boxMove,20);
 
 //碰撞函数
 var monsterHit;
@@ -272,12 +312,40 @@ function crashInterval(){
                     var img = monsterArr[ci.j].img;
                     monsterArr.splice(ci.j,1);
                     setTimeout(function(){
+                        var x = img.style.left;
+                        var y = img.style.top;
+                        var random = parseInt(Math.random()*4);
                         container.removeChild(img);
+                        if(random){
+                            var box = new Box(x,y);
+                            boxArr.push(box);
+                        }
                     },700)
                 }
             }
         }
     }
+
+    //龙和盒子的碰撞
+    var db = crash(dragonArr,boxArr);
+    if(db.isCrash){
+        if(!boxArr[db.j].dead){
+            time += 15;
+
+            var sec = time%60;
+            var sec22 = sec%10;
+            var sec11 = (sec-sec22)/10;
+            var min = (time-sec)/60;
+            var min22 = min%10;
+            var min11 = (min-min22)/10;
+            sec1.src = `../images/num/${sec11}.gif`;
+            sec2.src = `../images/num/${sec22}.gif`;
+            min1.src = `../images/num/${min11}.gif`;
+            min2.src = `../images/num/${min22}.gif`;
+        }
+        boxArr[db.j].dead = true;
+    }
+
 }
 var crashInter; //用于监听碰撞
 crashInter = setInterval(crashInterval,1);
