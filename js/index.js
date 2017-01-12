@@ -3,7 +3,6 @@ var clientHeight = document.documentElement.clientHeight;
 var bg = document.getElementById('bg');
 bg.style.height = clientHeight +'px';
 var dragon;
-var score = 0;
 var level = 0;  //龙的等级
 //龙的攻击gif
 var attackSrc = ['../images/dragon/small/magicmissile.gif','../images/dragon/middle/magicmissile.gif',
@@ -218,6 +217,7 @@ function createMonster(){
     monster.random = monsterRandom;
     monster.dead = false;
     monster.blood = (monsterRandom+1)*2;
+    monster.score = (monsterRandom+1)*100;
     monster.move = function(){
         this.img.style.left = parseInt(this.img.style.left) - speedX +'px';
         this.img.style.top = parseInt(this.img.style.top) - monster.speedY +'px';
@@ -311,6 +311,7 @@ function crashInterval(){
                     // monsterArr[ci.j].img.src = monsterSrc[1][2];
                     monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][2];
                     var img = monsterArr[ci.j].img;
+                    scoreGet(monsterArr[ci.j].score);
                     monsterArr.splice(ci.j,1);
                     setTimeout(function(){
                         var x = img.style.left;
@@ -371,3 +372,8 @@ timeInter = setInterval(function(){
     min2.src = `../images/num/${min22}.gif`;
 },1000);
 
+//记录分数
+function scoreGet(num){
+    var scoreNum = document.getElementById('scoreNum');
+    scoreNum.innerHTML = parseInt(scoreNum.innerHTML) + num +'分';
+}
