@@ -3,6 +3,7 @@ var clientHeight = document.documentElement.clientHeight;
 var bg = document.getElementById('bg');
 bg.style.height = clientHeight +'px';
 var dragon;
+var score = 0;
 var level = 0;  //龙的等级
 //龙的攻击gif
 var attackSrc = ['../images/dragon/small/magicmissile.gif','../images/dragon/middle/magicmissile.gif',
