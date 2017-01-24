@@ -42,3 +42,51 @@
 #min1 {
     margin-left: 100px;
 }
+#back {
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+}
+#exp,#exp0 {
+    position: absolute;
+    left: 0;
+    /*bottom: 300px;*/
+    transform: rotate(180deg);
+}
+#exp {
+    height: 62px;
+    transition: all .3s linear;
+    overflow: hidden;
+}
+#exp img,#exp0 img {
+    transform: rotate(180deg);
+}
+#energy {
+    position: absolute;
+    left: 0;
+}
+@keyframes dragonOpacity {
+    0% {
+        opacity: 1;
+    }
+    16.5% {
+        opacity: 0.3;
+    }
+    33% {
+        opacity: 1;
+    }
+    49.5% {
+        opacity: 0.3;
+    }
+    66% {
+        opacity: 1;
+    }
+    82.5% {
+        opacity: 0.3
+    }
+    100% {
+        opacity: 1;
+    }
+
+}

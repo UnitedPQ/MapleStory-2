@@ -17,6 +17,5 @@ function crash(arr1,arr2){
         }
         return {isCrash:false};
     }
-
 }
 
