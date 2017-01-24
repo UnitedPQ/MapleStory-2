@@ -6,7 +6,10 @@ var dragon;
 var level = 0;  //龙的等级
 var levelInterval;
 var energy = 3;
+var energyImg = document.querySelector('#energy img');
 var screenWidth = document.documentElement.clientWidth;
+var cover = document.getElementById('cover'); //蒙层
+var skill = document.getElementById('skill');//技能
 
 // console.log(screenWidth);
 //龙的攻击gif
@@ -73,6 +76,52 @@ function dragonMoveKeyStart(){
         if(e.keyCode == 32) {
             direction.attack = true;
         }
+        if(e.keyCode == 13) {
+            if(energy) {
+                cover.style.display = 'block';
+                skill.style.display = 'block';
+                pause();
+                energyImg.src = `../images/ui/boom/boom${--energy}.png`;
+
+                for(let i = 0 ; i < monsterArr.length ; i++){
+                    monsterArr[i].blood -= 5;
+                    if(monsterArr[i].blood <= 0){
+                        monsterArr[i].dead = true;
+
+                        monsterArr[i].img.src = monsterSrc[monsterArr[i].random][2];
+                        monsterArr[i].bloodImg.style.width = 0;
+                        var img = monsterArr[i].img;
+                        var bloodImg = monsterArr[i].bloodImgContainer;
+                        scoreGet(monsterArr[i].score,(monsterArr[i].random+1)*(12-level*2));
+                        monsterArr[i].bloodImg.addEventListener('webkitTransitionEnd',function(){
+                            container.removeChild(img);
+                            container.removeChild(bloodImg);
+                            monsterArr.splice(i,1);
+                        });
+                        // setTimeout(function(){
+                        //     container.removeChild(img);
+                        //     container.removeChild(bloodImg);
+                        // },700);
+                    }else {
+                        var oldBlood = (monsterArr[i].random+1)*2;
+                        monsterArr[i].bloodImg.style.width = monsterArr[i].blood/oldBlood*56+'px';
+                    }
+                }
+
+                setTimeout(function(){
+                    cover.style.display = 'none';
+                    skill.style.display = 'none';
+
+                    //怪物减5的血量
+                    // for(let i = 0 ; i < monsterArr.length ; i++){
+                    //
+                    // }
+                        start();
+                        dragonMoveKeyStart();
+
+                },2700);
+            }
+        }
     };
     window.onkeyup = function (e) {
         if (e.keyCode == 37) {
@@ -95,6 +144,9 @@ function dragonMoveKeyStart(){
 function dragonMoveKeyPause(){
     window.onkeydown = null;
     window.onkeyup = null;
+    for(var key in direction){
+        direction[key] = false;
+    }
 }
     //小龙移动攻击升级等功能
     function dragonMove() {
@@ -142,7 +194,7 @@ function dragonMoveKeyPause(){
                     createBullet('dragon');
                 },400);
             }
-            setTimeout(function(){
+            attackTimeout = setTimeout(function(){
                     isAttacking = false;
                     firstAttack = true;
                     dragon.img.src = standSrc[level];
@@ -236,7 +288,7 @@ function createMonster(){
     monster.speedY = parseInt(Math.random()*5)-2;
     monster.random = monsterRandom;
     monster.dead = false;
-    monster.blood = (monsterRandom+1)*2;
+    monster.blood = (monsterRandom+1)*3;
     monster.score = (monsterRandom+1)*100;
     monster.move = function(){
         this.img.style.left = parseInt(this.img.style.left) - speedX +'px';
@@ -326,7 +378,7 @@ function crashInterval(){
                 monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][1];
                 monsterArr[ci.j].img.style.left = parseInt(monsterArr[ci.j].img.style.left) + 25 + 'px';
                 var oldBlood = (monsterArr[ci.j].random+1)*2;
-                monsterArr[ci.j].blood -= level+1;
+                monsterArr[ci.j].blood -= level+4;
                 monsterArr[ci.j].bloodImg.style.width = monsterArr[ci.j].blood/oldBlood*56+'px';
                     monsterHit = setTimeout(function(){
                     monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][0];
@@ -336,6 +388,7 @@ function crashInterval(){
                     clearTimeout(monsterHit);
                     // monsterArr[ci.j].img.src = monsterSrc[1][2];
                     monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][2];
+                    monsterArr[ci.j].bloodImg.style.width = 0;
                     var img = monsterArr[ci.j].img;
                     var bloodImg = monsterArr[ci.j].bloodImgContainer;
                     scoreGet(monsterArr[ci.j].score,(monsterArr[ci.j].random+1)*(12-level*2));
@@ -371,6 +424,9 @@ function crashInterval(){
             sec2.src = `../images/num/${sec22}.gif`;
             min1.src = `../images/num/${min11}.gif`;
             min2.src = `../images/num/${min22}.gif`;
+            if(energy<7){
+                energyImg.src = `../images/ui/boom/boom${++energy}.png`;
+            }
         }
         boxArr[db.j].dead = true;
     }
@@ -424,7 +480,7 @@ function scoreGet(num,exp1){
     var img = exp.getElementsByTagName('img')[0];
     scoreNum.innerHTML = parseInt(scoreNum.innerHTML) + num +'分';
     if(level < 4) {
-        exp.style.height = parseInt(window.getComputedStyle(exp).height) + exp1 +'px';
+        exp.style.height = parseInt(window.getComputedStyle(exp).height) + exp1 +50  +'px';//经验条
     }
     if(parseInt(exp.style.height)>166){
         img.src = '../images/ui/expFull.gif';
@@ -441,16 +497,22 @@ function levelUp(){
     // dragonMoveKeyPause();
     // if(level<4) {
         pause();
+        clearTimeout(attackTimeout);
         dragon.img.src = '';
-        dragon.img.style.background = standSrc[level];
+        // dragon.img.style.background = standSrc[level];
+        dragon.img.style.animation = `level${level+2} 3s linear forwards`;
     // }
         setTimeout(function(){
+            isAttacking = false;
+            firstAttack = true;
             level += 1;
             dragon.img.src = standSrc[level];
             dragon.img.style.background = null;
+            dragon.img.style.animation = null;
             start();
             dragonMoveKeyStart();
-        },3000);
+
+        },3100);
 }
 //开始游戏
 start();

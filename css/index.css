@@ -66,6 +66,22 @@
     position: absolute;
     left: 0;
 }
+#skill {
+    position: absolute;
+    top: 10%;
+    left: 20%;
+    display: none;
+    z-index: 100001;
+}
+#cover {
+    width: 100%;
+    position: absolute;
+    background-color: black;
+    opacity: 0.3;
+    z-index: 100000;
+    top: 0;
+    display: none;
+}
 @keyframes dragonOpacity {
     0% {
         opacity: 1;
@@ -88,5 +104,134 @@
     100% {
         opacity: 1;
     }
+}
+@keyframes level2 {
+    0% {
+        background: url('../images/dragon/small/stand.gif');
+        width: 54px;
+        height: 54px;
+    }
+    20% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
+    }
+    40% {
+        background: url('../images/dragon/small/stand.gif');
+        width: 54px;
+        height: 54px;
+    }
+    60% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
+    }
+    80% {
+        background: url('../images/dragon/small/stand.gif');
+        width: 54px;
+        height: 54px;
+    }
+    100% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
+    }
+ }
+@keyframes level3 {
+    0% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
+    }
+    20% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+    }
+    40% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
+    }
+    60% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+    }
+    80% {
+        background: url('../images/dragon/middle/stand.gif');
+        width: 67px;
+        height: 63px;
 
+    }
+    100% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+    }
+}
+@keyframes level4 {
+    0% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+    }
+    20% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+    40% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+    }
+    60% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+    80% {
+        background: url('../images/dragon/big/stand.gif');
+        width: 128px;
+        height: 94px;
+
+    }
+    100% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+}
+@keyframes level5 {
+    0% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+    20% {
+        background: url('../images/dragon/final/stand.gif');
+        width: 173px;
+        height: 154px;
+    }
+    40% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+    60% {
+        background: url('../images/dragon/final/stand.gif');
+        width: 173px;
+        height: 154px;
+    }
+    80% {
+        background: url('../images/dragon/large/stand.gif');
+        width: 139px;
+        height: 105px;
+    }
+    100% {
+        background: url('../images/dragon/final/stand.gif');
+        width: 173px;
+        height: 154px;
+    }
 }

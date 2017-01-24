@@ -2,6 +2,8 @@ var contanier = document.getElementById('container');
 //飞机构造函数
 function Plane(x,y,src){
     this.img = document.createElement('img');
+    this.img.style.outline = null;
+    this.img.style.border = null;
     this.bloodImg = document.createElement("div");//血量
     this.bloodImgR = document.createElement("img");//血量
     this.bloodImgBlack = document.createElement('img');//血量黑条
