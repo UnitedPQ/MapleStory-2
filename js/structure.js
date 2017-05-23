@@ -1,4 +1,4 @@
-var contanier = document.getElementById('container');
+var container = document.getElementById('container');
 //飞机构造函数
 function Plane(x,y,src){
     this.img = document.createElement('img');

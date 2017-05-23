@@ -76,11 +76,39 @@
 #cover {
     width: 100%;
     position: absolute;
-    background-color: black;
-    opacity: 0.3;
-    z-index: 100000;
+    background-color: rgba(0,0,0,0.5);
+    /*opacity: 0.3;*/
+    z-index: 10000;
     top: 0;
     display: none;
+}
+#finalScore {
+    position: absolute;
+    left: 0;
+    right:0 ;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 217px;
+    height: 196px;
+    background: url('../images/ui/tipBg.png') 100% 100% no-repeat;
+    text-align: center;
+    padding: 50px;
+    box-sizing: border-box;
+}
+#finalScoreWrite {
+    color: red;
+}
+.scoreWrite {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+#tomb {
+    position: absolute;
+    top: -50px;
+    transition: top 1s linear;
+
 }
 @keyframes dragonOpacity {
     0% {
@@ -233,5 +261,13 @@
         background: url('../images/dragon/final/stand.gif');
         width: 173px;
         height: 154px;
+    }
+}
+@keyframes expMove {
+    from {
+        height: 166px;
+    }
+    to {
+        height: 62px;
     }
 }

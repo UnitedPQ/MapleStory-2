@@ -10,7 +10,7 @@ var energyImg = document.querySelector('#energy img');
 var screenWidth = document.documentElement.clientWidth;
 var cover = document.getElementById('cover'); //蒙层
 var skill = document.getElementById('skill');//技能
-
+var levelFlag = false;
 // console.log(screenWidth);
 //龙的攻击gif
 var attackSrc = ['../images/dragon/small/magicmissile.gif','../images/dragon/middle/magicmissile.gif',
@@ -37,17 +37,19 @@ var bossBullet = [];
 var boxArr = [];
 var dragonArr = [];  //为了方便碰撞计算
 var canAttack = false; //允许小龙发射子弹
-var drgonmove; //监控小龙的函数 用于setInterval
+var dragonMoveIn; //监控小龙的函数 用于setInterval
 var bulletMoveInter; //监听子弹移动的函数 setInterval
 var time = 90;  //时间倒计时数
 var timeInter;  //时间setInterval
-
+var energyTimeOut;
 //初始化小龙函数
     var direction = {left: false, right: false, up: false, down: false,attack:false}; //用于小龙操作
 //小龙创建
     dragon = new Plane(0, 400, '../images/dragon/small/stand.gif');
     dragonArr.push(dragon);
     dragon.img.style.animation = 'moveStart .5s linear forwards';
+    dragon.img.id = 'dragon';
+    dragon.bloodImgContainer.id = 'bloodContainer'
     dragon.bloodImgContainer.style.animation = 'moveStart .5s linear forwards';
     dragon.isCrash = false;
 
@@ -78,6 +80,7 @@ function dragonMoveKeyStart(){
         }
         if(e.keyCode == 13) {
             if(energy) {
+                clearTimeout(energyTimeOut);
                 cover.style.display = 'block';
                 skill.style.display = 'block';
                 pause();
@@ -85,40 +88,36 @@ function dragonMoveKeyStart(){
 
                 for(let i = 0 ; i < monsterArr.length ; i++){
                     monsterArr[i].blood -= 5;
+                    // monsterHit = setTimeout(function(){
+                    //     monsterArr[i].img.src = monsterSrc[monsterArr[i].random][0];
+                    // },400);
                     if(monsterArr[i].blood <= 0){
                         monsterArr[i].dead = true;
-
+                        // clearTimeout(monsterHit);
                         monsterArr[i].img.src = monsterSrc[monsterArr[i].random][2];
                         monsterArr[i].bloodImg.style.width = 0;
-                        var img = monsterArr[i].img;
-                        var bloodImg = monsterArr[i].bloodImgContainer;
-                        scoreGet(monsterArr[i].score,(monsterArr[i].random+1)*(12-level*2));
-                        monsterArr[i].bloodImg.addEventListener('webkitTransitionEnd',function(){
-                            container.removeChild(img);
-                            container.removeChild(bloodImg);
-                            monsterArr.splice(i,1);
-                        });
+                        // var img = monsterArr[i].img;
+                        // var bloodImg = monsterArr[i].bloodImgContainer;
+                        // scoreGet(monsterArr[i].score,(monsterArr[i].random+1)*(12-level*2));
                         // setTimeout(function(){
                         //     container.removeChild(img);
                         //     container.removeChild(bloodImg);
+                        //     monsterArr.splice(i,1);
                         // },700);
                     }else {
-                        var oldBlood = (monsterArr[i].random+1)*2;
+                        var oldBlood = (monsterArr[i].random+1)*3;
+                        monsterArr[i].img.src = monsterSrc[monsterArr[i].random][1];
                         monsterArr[i].bloodImg.style.width = monsterArr[i].blood/oldBlood*56+'px';
+                        setTimeout(function(){
+                            monsterArr[i].img.src = monsterSrc[monsterArr[i].random][0];
+                        },2700)
                     }
                 }
-
-                setTimeout(function(){
+                energyTimeOut = setTimeout(function(){
                     cover.style.display = 'none';
                     skill.style.display = 'none';
-
-                    //怪物减5的血量
-                    // for(let i = 0 ; i < monsterArr.length ; i++){
-                    //
-                    // }
                         start();
                         dragonMoveKeyStart();
-
                 },2700);
             }
         }
@@ -200,6 +199,20 @@ function dragonMoveKeyPause(){
                     dragon.img.src = standSrc[level];
                 },650);
         }
+        // if(direction.skill) {
+        //     for(var i = 0 ; i < monsterArr.length ; i++){
+        //         if(monsterArr[i].dead){
+        //             if(monsterArr[i].count < 100){
+        //                 monsterArr[i].count++;
+        //             }else {
+        //                 container.removeChild(monsterArr[i].img);
+        //                 container.removeChild(monsterArr[i].bloodImgContainer);
+        //                 monsterArr.splice(i,1);
+        //             }
+        //         }
+        //
+        //     }
+        // }
     }
      // drgonmove = setInterval(dragonMove,5);
 
@@ -288,24 +301,44 @@ function createMonster(){
     monster.speedY = parseInt(Math.random()*5)-2;
     monster.random = monsterRandom;
     monster.dead = false;
+    monster.count = 0;
     monster.blood = (monsterRandom+1)*3;
     monster.score = (monsterRandom+1)*100;
     monster.move = function(){
-        this.img.style.left = parseInt(this.img.style.left) - speedX +'px';
-        this.bloodImgContainer.style.left = parseInt(this.img.style.left) - speedX + 5 +'px';
-        this.img.style.top = parseInt(this.img.style.top) - monster.speedY +'px';
-        this.bloodImgContainer.style.top = parseInt(this.img.style.top) - monster.speedY -20 +'px';
+        if(!this.dead){
+            this.img.style.left = parseInt(this.img.style.left) - speedX +'px';
+            this.bloodImgContainer.style.left = parseInt(this.img.style.left) - speedX + 5 +'px';
+            this.img.style.top = parseInt(this.img.style.top) - monster.speedY +'px';
+            this.bloodImgContainer.style.top = parseInt(this.img.style.top) - monster.speedY -20 +'px';
+        }else {
+            if(this.count < 10){
+                this.count++;
+            }else {
+                scoreGet(this.score,(this.random+1)*(12-level*2));
+                container.removeChild(this.img);
+                container.removeChild(this.bloodImgContainer);
+                var i = monsterArr.indexOf(this);
+                var x = this.img.style.left;
+                var y = this.img.style.top;
+                monsterArr.splice(i,1);
+                var random = parseInt(Math.random()*4);
+                if(random){
+                    var box = new Box(x,y);
+                    boxArr.push(box);
+                }
+            }
+        }
     };
     monsterArr.push(monster);
 }
 function monsterMove(){
     for(var i = 0 ; i < monsterArr.length; i++){
-        monsterArr[i].move();
         if(parseInt(monsterArr[i].img.style.left)<=-360){
-            contanier.removeChild(monsterArr[i].img);
-            contanier.removeChild(monsterArr[i].bloodImgContainer)
+            container.removeChild(monsterArr[i].img);
+            container.removeChild(monsterArr[i].bloodImgContainer);
             monsterArr.splice(i,1);
         }
+        monsterArr[i].move();
     }
 }
 function monsterMoveY(){
@@ -341,7 +374,7 @@ function Box(x,y){
         this.img.style.left = parseInt(this.img.style.left) + this.speedX +'px';
         this.img.style.top = parseInt(this.img.style.top) + this.speedY +'px';
     };
-    contanier.appendChild(this.img);
+    container.appendChild(this.img);
 
 }
 
@@ -354,7 +387,7 @@ function boxMove(){
             ||parseInt(boxArr[i].img.style.top)>=clientHeight+40
             ||parseInt(boxArr[i].img.style.top)<=-40
             ||boxArr[i].dead){
-            contanier.removeChild(boxArr[i].img);
+            container.removeChild(boxArr[i].img);
             boxArr.splice(i,1);
         }
     }
@@ -363,6 +396,7 @@ function boxMove(){
 
 //碰撞函数
 var monsterHit;
+var dragonCrashTimeout;
 function crashInterval(){
     //子弹和怪物的碰撞判断
     var ci = crash(dragonBullet,monsterArr);
@@ -377,21 +411,21 @@ function crashInterval(){
             if(!monsterArr[ci.j].dead && monsterArr[ci.j].blood > 0) {
                 monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][1];
                 monsterArr[ci.j].img.style.left = parseInt(monsterArr[ci.j].img.style.left) + 25 + 'px';
-                var oldBlood = (monsterArr[ci.j].random+1)*2;
-                monsterArr[ci.j].blood -= level+4;
+                var oldBlood = (monsterArr[ci.j].random+1)*3;
+                monsterArr[ci.j].blood -= level+1;
                 monsterArr[ci.j].bloodImg.style.width = monsterArr[ci.j].blood/oldBlood*56+'px';
-                    monsterHit = setTimeout(function(){
-                    monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][0];
+                monsterHit = setTimeout(function(){
+                monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][0];
                 },400);
                 if(monsterArr[ci.j].blood <= 0){
-                    monsterArr[ci.j].dead = true;
+                    // monsterArr[ci.j].dead = true;
                     clearTimeout(monsterHit);
                     // monsterArr[ci.j].img.src = monsterSrc[1][2];
                     monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][2];
                     monsterArr[ci.j].bloodImg.style.width = 0;
                     var img = monsterArr[ci.j].img;
                     var bloodImg = monsterArr[ci.j].bloodImgContainer;
-                    scoreGet(monsterArr[ci.j].score,(monsterArr[ci.j].random+1)*(12-level*2));
+                    scoreGet(monsterArr[ci.j].score,(monsterArr[ci.j].random+1)*(36-level*2));
                     monsterArr.splice(ci.j,1);
                     setTimeout(function(){
                         var x = img.style.left;
@@ -399,7 +433,7 @@ function crashInterval(){
                         var random = parseInt(Math.random()*4);
                         container.removeChild(img);
                         container.removeChild(bloodImg);
-                        if(random){
+                        if(!random){
                             var box = new Box(x,y);
                             boxArr.push(box);
                         }
@@ -436,16 +470,18 @@ function crashInterval(){
     if(dm.isCrash){
         if(!dragon.isCrash) {
             dragon.isCrash = true;
-            if(parseInt(dragon.bloodImg.style.width)>=10){
-                dragon.bloodImg.style.width = parseInt(dragon.bloodImg.style.width) - 10 + 'px';
+            if(parseInt(dragon.bloodImg.style.width)>=(monsterArr[dm.j].random+1)*(5-level)*10){
+                dragon.bloodImg.style.width = parseInt(dragon.bloodImg.style.width) - (monsterArr[dm.j].random+1)*(5-level)*10 + 'px';
                 dragon.img.style.animation = 'dragonOpacity 1.5s linear';
+                dragonCrashTimeout = setTimeout(function(){
+                    dragon.isCrash = false;
+                    dragon.img.style.animation = null;
+                },1500);
             }else {
                 dragon.bloodImg.style.width = 0;
+                gameOver()
             }
-            setTimeout(function(){
-                dragon.isCrash = false;
-                dragon.img.style.animation = null;
-            },1500);
+
         }
     }
 
@@ -477,42 +513,70 @@ function timeBack(){
 //记录分数
 function scoreGet(num,exp1){
     var scoreNum = document.getElementById('scoreNum');
-    var img = exp.getElementsByTagName('img')[0];
     scoreNum.innerHTML = parseInt(scoreNum.innerHTML) + num +'分';
-    if(level < 4) {
-        exp.style.height = parseInt(window.getComputedStyle(exp).height) + exp1 +50  +'px';//经验条
-    }
-    if(parseInt(exp.style.height)>166){
-        img.src = '../images/ui/expFull.gif';
-        levelUp();
-        setTimeout(function(){
-            img.src = '../images/ui/expMax.gif';
-            exp.style.height = '62px';
-        },3000)
+    if(level < 4 && !levelFlag) {
+        exp.style.height = parseInt(window.getComputedStyle(exp).height) + exp1 + 'px';//经验条
     }
 }
 
-// levelInterval = setInterval()
+// levelInterval = setInterval(levelUp,1);
 function levelUp(){
     // dragonMoveKeyPause();
     // if(level<4) {
+    var img = exp.getElementsByTagName('img')[0];
+    if(parseInt(exp.style.height)>166 && !levelFlag){
+        // console.log(levelFlag);
+        img.src = '../images/ui/expFull.gif';
+        // exp.style.height = '62px';
+        // console.log(levelFlag);
         pause();
         clearTimeout(attackTimeout);
         dragon.img.src = '';
         // dragon.img.style.background = standSrc[level];
+        // exp.style.animation = 'expMove 1s linear forwards';
         dragon.img.style.animation = `level${level+2} 3s linear forwards`;
-    // }
+        // console.log(level);
+        levelFlag = true;
+        // }
+        setTimeout(function(){
+            exp.style.height = '62px';
+        },2000)
         setTimeout(function(){
             isAttacking = false;
             firstAttack = true;
-            level += 1;
-            dragon.img.src = standSrc[level];
+            levelFlag = false;
             dragon.img.style.background = null;
             dragon.img.style.animation = null;
             start();
             dragonMoveKeyStart();
-
+            img.src = '../images/ui/expMax.gif';
+            level += 1;
+            dragon.img.src = standSrc[level];
         },3100);
+        // setTimeout(function(){
+        //     img.src = '../images/ui/expMax.gif';
+        //     exp.style.height = '62px';
+        // },3000)
+    }
+    if(levelFlag) {
+        // pause();
+        // clearTimeout(attackTimeout);
+        // dragon.img.src = '';
+        // // dragon.img.style.background = standSrc[level];
+        // dragon.img.style.animation = `level${level+2} 3s linear forwards`;
+        // // }
+        // setTimeout(function(){
+        //     isAttacking = false;
+        //     firstAttack = true;
+        //     level += 1;
+        //     levelFlag = false;
+        //     dragon.img.src = standSrc[level];
+        //     dragon.img.style.background = null;
+        //     dragon.img.style.animation = null;
+        //     start();
+        //     dragonMoveKeyStart();
+        // },3100);
+    }
 }
 //开始游戏
 start();

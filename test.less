@@ -1,0 +1,24 @@
+#box {
+  width: 100px;
+  height: 100px;
+  background-color: green;
+  animation: 'move 1s linear';
+}
+.move(20px,40px,move);
+.a(@c,@d){
+  width: @c;
+  height: @d;
+}
+.margin(@a){
+  margin-left: @a;
+}
+.move(@a,@b,@c) {
+  @keyframes @c {
+    from {
+      .margin(@a)
+    }
+    to {
+      .margin(@b)
+    }
+  }
+}

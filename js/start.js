@@ -9,6 +9,8 @@ function start() {
     monsterMoveYInter = setInterval(monsterMoveY,1000); //怪Y移动
     bulletMoveInter = setInterval(bulletMove,20);
     dragonMoveIn = setInterval(dragonMove,5);
+    levelInterval = setInterval(levelUp,1);
+
 }
 
 function pause() {
@@ -21,4 +23,5 @@ function pause() {
     clearInterval(monsterMoveYInter);
     clearInterval(bulletMoveInter);
     clearInterval(dragonMoveIn);
+    clearInterval(levelInterval);
 }

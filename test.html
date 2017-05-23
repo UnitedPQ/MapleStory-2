@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        #box {
+            width: 100px;
+            height: 100px;
+            background: url('images/bg.jpg');
+        }
+        @keyframes run {
+            from {
+                background: url('images/bg.jpg');
+
+            }
+            to {
+                background: url('images/readyBg.jpg');
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="box"></div>
+<img src="images/skill.gif" alt="">
+<script>
+    var box = document.getElementById('box');
+    box.style.animation = 'run 4s linear forwards';
+    for(let i = 0 ; i < 3 ; i++){
+
+            setTimeout(function(){
+                console.log(i)
+            },500)
+    }
+</script>
+</body>
+</html>
