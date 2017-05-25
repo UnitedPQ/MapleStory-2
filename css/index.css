@@ -51,12 +51,11 @@
 #exp,#exp0 {
     position: absolute;
     left: 0;
-    /*bottom: 300px;*/
     transform: rotate(180deg);
 }
 #exp {
     height: 62px;
-    transition: all .3s linear;
+    transition: height .3s linear;
     overflow: hidden;
 }
 #exp img,#exp0 img {
@@ -68,10 +67,19 @@
 }
 #skill {
     position: absolute;
-    top: 10%;
-    left: 20%;
+    width: 100%;
+    height: 100vh;
+    left: 0;
+    top: 0;
     display: none;
     z-index: 100001;
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    padding-top: 10%;
+    box-sizing: border-box;
+}
+#skill img {
+    width: 80%;
 }
 #cover {
     width: 100%;
@@ -102,13 +110,19 @@
 .scoreWrite {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 #tomb {
     position: absolute;
     top: -50px;
     transition: top 1s linear;
-
+}
+#again {
+    margin-top:20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: red;
 }
 @keyframes dragonOpacity {
     0% {

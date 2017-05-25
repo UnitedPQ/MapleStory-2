@@ -16,3 +16,7 @@ exp0.style.bottom = expBottom +'px';
 var energyBox = document.getElementById('energy');
 energyBox.style.bottom = expBottom/8*7 + 'px';
 cover.style.height = clientHeight + 'px';
+
+document.getElementById('again').onclick = function(){
+    location.reload()
+}

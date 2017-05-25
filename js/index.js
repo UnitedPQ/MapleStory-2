@@ -28,6 +28,14 @@ var dragonBulletCrashSrc = ['../images/dragon/small/hit.gif','../images/dragon/m
 var monsterSrc = [['../images/enemy/bird/move.gif','../images/enemy/bird/hit.gif', '../images/enemy/bird/die.gif'],
 ['../images/enemy/plane/move.gif','../images/enemy/plane/hit.gif', '../images/enemy/plane/die.gif'],
     ['../images/enemy/ghost/move.gif','../images/enemy/ghost/hit.gif', '../images/enemy/ghost/die.gif']];
+var bossSrc = {
+    move: '../images/enemy/boss/move.gif',
+    hit: '../images/enemy/boss/hit.gif',
+    die: '../images/enemy/boss/die.gif',
+    attack: '../images/enemy/boss/attack.gif',
+    attackBall: '../images/enemy/boss/attackBall.gif',
+    attackHit: '../images/enemy/boss/attackHit.gif'
+}
 var isAttacking = false; //攻击flag
 var firstAttack = true;   //长按空格flag
 var attackTimeout; //攻击间隔
@@ -40,7 +48,7 @@ var canAttack = false; //允许小龙发射子弹
 var dragonMoveIn; //监控小龙的函数 用于setInterval
 var bulletMoveInter; //监听子弹移动的函数 setInterval
 var time = 90;  //时间倒计时数
-var timeInter;  //时间setInterval
+var realTime;  //耗时
 var energyTimeOut;
 //初始化小龙函数
     var direction = {left: false, right: false, up: false, down: false,attack:false}; //用于小龙操作
@@ -49,7 +57,7 @@ var energyTimeOut;
     dragonArr.push(dragon);
     dragon.img.style.animation = 'moveStart .5s linear forwards';
     dragon.img.id = 'dragon';
-    dragon.bloodImgContainer.id = 'bloodContainer'
+    dragon.bloodImgContainer.id = 'bloodContainer';
     dragon.bloodImgContainer.style.animation = 'moveStart .5s linear forwards';
     dragon.isCrash = false;
 
@@ -81,38 +89,59 @@ function dragonMoveKeyStart(){
         if(e.keyCode == 13) {
             if(energy) {
                 clearTimeout(energyTimeOut);
-                cover.style.display = 'block';
+                // cover.style.display = 'block';
                 skill.style.display = 'block';
                 pause();
                 energyImg.src = `../images/ui/boom/boom${--energy}.png`;
 
                 for(let i = 0 ; i < monsterArr.length ; i++){
                     monsterArr[i].blood -= 5;
-                    // monsterHit = setTimeout(function(){
-                    //     monsterArr[i].img.src = monsterSrc[monsterArr[i].random][0];
-                    // },400);
                     if(monsterArr[i].blood <= 0){
                         monsterArr[i].dead = true;
-                        // clearTimeout(monsterHit);
                         monsterArr[i].img.src = monsterSrc[monsterArr[i].random][2];
                         monsterArr[i].bloodImg.style.width = 0;
-                        // var img = monsterArr[i].img;
-                        // var bloodImg = monsterArr[i].bloodImgContainer;
-                        // scoreGet(monsterArr[i].score,(monsterArr[i].random+1)*(12-level*2));
-                        // setTimeout(function(){
-                        //     container.removeChild(img);
-                        //     container.removeChild(bloodImg);
-                        //     monsterArr.splice(i,1);
-                        // },700);
                     }else {
-                        var oldBlood = (monsterArr[i].random+1)*3;
+                        var oldblood = (monsterArr[i].random+1)*3;
                         monsterArr[i].img.src = monsterSrc[monsterArr[i].random][1];
-                        monsterArr[i].bloodImg.style.width = monsterArr[i].blood/oldBlood*56+'px';
+                        monsterArr[i].bloodImg.style.width = monsterArr[i].blood/oldblood*56+'px';
                         setTimeout(function(){
                             monsterArr[i].img.src = monsterSrc[monsterArr[i].random][0];
                         },2700)
                     }
                 }
+
+                for(let j = 0 ; j < bossArr.length ; j++){
+                    bossArr[j].blood -= 5;
+                    if(bossArr[j].blood <= 0){
+                        bossArr[j].dead = true;
+                        bossArr[j].img.src = bossSrc.die;
+                        bossArr[j].bloodImg.style.width = 0;
+                        var img = bossArr[j].img;
+                        var bloodImg = bossArr[j].bloodImgContainer;
+                        scoreGet(bossArr[j].score,8*(16-level*4));
+                        bossArr.splice(j,1);
+                        setTimeout(function(){
+                            var x = img.style.left;
+                            var y = img.style.top;
+                            var random = parseInt(Math.random()*4);
+                            container.removeChild(img);
+                            container.removeChild(bloodImg);
+                            if(random){
+                                var box = new Box(x,y);
+                                boxArr.push(box);
+                            }
+                        },2500)
+
+                    }else {
+                        var oldblood = 40;
+                        bossArr[j].img.src = bossSrc.hit;
+                        bossArr[j].bloodImg.style.width = bossArr[j].blood/oldblood*56+'px';
+                        setTimeout(function(){
+                            bossArr[j].img.src = bossSrc.move;
+                        },2700)
+                    }
+                }
+
                 energyTimeOut = setTimeout(function(){
                     cover.style.display = 'none';
                     skill.style.display = 'none';
@@ -229,25 +258,26 @@ function Bullet(x,y,src){
         switch (type) {
             case 'dragon':
                 this.img.style.left = parseInt(this.img.style.left) + 10 + 'px';
-
                 break;
             case 'boss':
-                this.img.style.left = parseInt(this.img.style.left) - 20 + 'px';
+                this.img.style.left = parseInt(this.img.style.left) - 15 + 'px';
                 break;
         }
     };
     container.appendChild(this.img);
 }
 //创建子弹函数
-function createBullet(type){
+function createBullet(type,x,y){
     switch (type) {
         case 'dragon':
-            var x = parseInt(window.getComputedStyle(dragon.img).left) + parseInt(window.getComputedStyle(dragon.img).width) -30;
-            var y = parseInt(window.getComputedStyle(dragon.img).top) + parseInt(window.getComputedStyle(dragon.img).height)/2+5;
-            var bullet = new Bullet(x,y,dragonBulletSrc[level]);
+            var x1 = parseInt(window.getComputedStyle(dragon.img).left) + parseInt(window.getComputedStyle(dragon.img).width) -30;
+            var y1 = parseInt(window.getComputedStyle(dragon.img).top) + parseInt(window.getComputedStyle(dragon.img).height)/2+5;
+            let bullet = new Bullet(x1,y1,dragonBulletSrc[level]);
             dragonBullet.push(bullet);
             break;
         case 'boss':
+            let bullet2 = new Bullet(x,y,bossSrc.attackBall);
+            bossBullet.push(bullet2);
             break;
     }
 }
@@ -314,7 +344,9 @@ function createMonster(){
             if(this.count < 10){
                 this.count++;
             }else {
-                scoreGet(this.score,(this.random+1)*(12-level*2));
+                if(!levelFlag) {
+                    scoreGet(this.score,(this.random+1)*(16-level*4));
+                }
                 container.removeChild(this.img);
                 container.removeChild(this.bloodImgContainer);
                 var i = monsterArr.indexOf(this);
@@ -322,7 +354,7 @@ function createMonster(){
                 var y = this.img.style.top;
                 monsterArr.splice(i,1);
                 var random = parseInt(Math.random()*4);
-                if(random){
+                if(!random){
                     var box = new Box(x,y);
                     boxArr.push(box);
                 }
@@ -352,6 +384,10 @@ function monsterMoveY(){
         }else {
             monsterArr[i].speedY = parseInt(Math.random()*5)-2;
         }
+    }
+    for (var j = 0 ; j < bossArr.length ; j++){
+        bossArr[j].speedX = parseInt(Math.random()*10)+1;
+        bossArr[j].speedY = parseInt(Math.random()*5)+1;
     }
 }
 var monsterCreateInter,monsterMoveInter,monsterMoveYInter;
@@ -395,7 +431,7 @@ function boxMove(){
 // boxMoveInter = setInterval(boxMove,20);
 
 //碰撞函数
-var monsterHit;
+var monsterHit,bossHit;
 var dragonCrashTimeout;
 function crashInterval(){
     //子弹和怪物的碰撞判断
@@ -403,11 +439,6 @@ function crashInterval(){
     if(ci.isCrash){
         if(!dragonBullet[ci.i].dead){
             dragonBullet[ci.i].dead = true;
-            // dragonBullet[ci.i].img.src = dragonBulletCrashSrc[level];
-            // setTimeout(function(){
-            //     container.removeChild(dragonBullet[ci.i].img);
-            //     dragonBullet.splice(ci.i,1);
-            // },100);
             if(!monsterArr[ci.j].dead && monsterArr[ci.j].blood > 0) {
                 monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][1];
                 monsterArr[ci.j].img.style.left = parseInt(monsterArr[ci.j].img.style.left) + 25 + 'px';
@@ -415,17 +446,15 @@ function crashInterval(){
                 monsterArr[ci.j].blood -= level+1;
                 monsterArr[ci.j].bloodImg.style.width = monsterArr[ci.j].blood/oldBlood*56+'px';
                 monsterHit = setTimeout(function(){
-                monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][0];
+                    monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][0];
                 },400);
                 if(monsterArr[ci.j].blood <= 0){
-                    // monsterArr[ci.j].dead = true;
                     clearTimeout(monsterHit);
-                    // monsterArr[ci.j].img.src = monsterSrc[1][2];
                     monsterArr[ci.j].img.src = monsterSrc[monsterArr[ci.j].random][2];
                     monsterArr[ci.j].bloodImg.style.width = 0;
                     var img = monsterArr[ci.j].img;
                     var bloodImg = monsterArr[ci.j].bloodImgContainer;
-                    scoreGet(monsterArr[ci.j].score,(monsterArr[ci.j].random+1)*(36-level*2));
+                    scoreGet(monsterArr[ci.j].score,(monsterArr[ci.j].random+1)*(16-level*4));
                     monsterArr.splice(ci.j,1);
                     setTimeout(function(){
                         var x = img.style.left;
@@ -438,6 +467,66 @@ function crashInterval(){
                             boxArr.push(box);
                         }
                     },700)
+                }
+            }
+        }
+    }
+
+    //boss子弹和龙
+    var dbb = crash(bossBullet,dragonArr);
+    if(dbb.isCrash){
+        if(!bossBullet[dbb.i].dead){
+            bossBullet[dbb.i].dead = true;
+            if(!dragon.isCrash) {
+                dragon.isCrash = true;
+                if(parseInt(dragon.bloodImg.style.width)>=120/(level+1)){
+                    dragon.bloodImg.style.width = parseInt(dragon.bloodImg.style.width) - 120/(level+1) + 'px';
+                    dragon.img.style.animation = 'dragonOpacity 1.5s linear';
+                    dragonCrashTimeout = setTimeout(function(){
+                        dragon.isCrash = false;
+                        dragon.img.style.animation = null;
+                    },1500);
+                }else {
+                    dragon.bloodImg.style.width = 0;
+                    gameOver()
+                }
+            }
+        }
+    }
+
+    //子弹和boss
+    var dbo = crash(dragonBullet,bossArr);
+    if(dbo.isCrash){
+        if(!dragonBullet[dbo.i].dead){
+            dragonBullet[dbo.i].dead = true;
+            if(!bossArr[dbo.j].dead && bossArr[dbo.j].blood > 0) {
+                bossArr[dbo.j].img.src = bossSrc.hit;
+                bossArr[dbo.j].img.style.left = parseInt(bossArr[dbo.j].img.style.left) + 25 + 'px';
+                var oldBlood = 40;
+                bossArr[dbo.j].blood -= level+1;
+                bossArr[dbo.j].bloodImg.style.width = bossArr[dbo.j].blood/oldBlood*56+'px';
+                bossHit = setTimeout(function(){
+                    bossArr[dbo.j].img.src = bossSrc.move;
+                },400);
+                if(bossArr[dbo.j].blood <= 0){
+                    clearTimeout(bossHit);
+                    bossArr[dbo.j].img.src = bossSrc.die;
+                    bossArr[dbo.j].bloodImg.style.width = 0;
+                    var img = bossArr[dbo.j].img;
+                    var bloodImg = bossArr[dbo.j].bloodImgContainer;
+                    scoreGet(bossArr[dbo.j].score,8*(16-level*4));
+                    bossArr.splice(dbo.j,1);
+                    setTimeout(function(){
+                        var x = img.style.left;
+                        var y = img.style.top;
+                        var random = parseInt(Math.random()*4);
+                        container.removeChild(img);
+                        container.removeChild(bloodImg);
+                        if(random){
+                            var box = new Box(x,y);
+                            boxArr.push(box);
+                        }
+                    },2500)
                 }
             }
         }
@@ -470,8 +559,8 @@ function crashInterval(){
     if(dm.isCrash){
         if(!dragon.isCrash) {
             dragon.isCrash = true;
-            if(parseInt(dragon.bloodImg.style.width)>=(monsterArr[dm.j].random+1)*(5-level)*10){
-                dragon.bloodImg.style.width = parseInt(dragon.bloodImg.style.width) - (monsterArr[dm.j].random+1)*(5-level)*10 + 'px';
+            if(parseInt(dragon.bloodImg.style.width)>=(monsterArr[dm.j].random+1)*(5-level)*4){
+                dragon.bloodImg.style.width = parseInt(dragon.bloodImg.style.width) - (monsterArr[dm.j].random+1)*(5-level)*4 + 'px';
                 dragon.img.style.animation = 'dragonOpacity 1.5s linear';
                 dragonCrashTimeout = setTimeout(function(){
                     dragon.isCrash = false;
@@ -481,10 +570,14 @@ function crashInterval(){
                 dragon.bloodImg.style.width = 0;
                 gameOver()
             }
-
         }
     }
-
+    if(crash(dragonArr,bossArr).isCrash) {
+        if(!dragon.isCrash) {
+            dragon.bloodImg.style.width = 0;
+            gameOver();
+        }
+    }
 }
 var crashInter; //用于监听碰撞
 // crashInter = setInterval(crashInterval,1);
@@ -496,6 +589,7 @@ var sec1 = document.getElementById('sec1');
 var sec2 = document.getElementById('sec2');
 function timeBack(){
     time--;
+    realTime++;
     var sec = time%60;
     var sec22 = sec%10;
     var sec11 = (sec-sec22)/10;
@@ -507,8 +601,6 @@ function timeBack(){
     min1.src = `../images/num/${min11}.gif`;
     min2.src = `../images/num/${min22}.gif`;
 }
-
-// timeInter = setInterval(timeBack,1000);
 
 //记录分数
 function scoreGet(num,exp1){
@@ -525,21 +617,15 @@ function levelUp(){
     // if(level<4) {
     var img = exp.getElementsByTagName('img')[0];
     if(parseInt(exp.style.height)>166 && !levelFlag){
-        // console.log(levelFlag);
         img.src = '../images/ui/expFull.gif';
-        // exp.style.height = '62px';
-        // console.log(levelFlag);
         pause();
         clearTimeout(attackTimeout);
         dragon.img.src = '';
-        // dragon.img.style.background = standSrc[level];
-        // exp.style.animation = 'expMove 1s linear forwards';
         dragon.img.style.animation = `level${level+2} 3s linear forwards`;
-        // console.log(level);
         levelFlag = true;
-        // }
         setTimeout(function(){
             exp.style.height = '62px';
+            dragon.bloodImg.style.width = '56px'
         },2000)
         setTimeout(function(){
             isAttacking = false;
@@ -553,29 +639,6 @@ function levelUp(){
             level += 1;
             dragon.img.src = standSrc[level];
         },3100);
-        // setTimeout(function(){
-        //     img.src = '../images/ui/expMax.gif';
-        //     exp.style.height = '62px';
-        // },3000)
-    }
-    if(levelFlag) {
-        // pause();
-        // clearTimeout(attackTimeout);
-        // dragon.img.src = '';
-        // // dragon.img.style.background = standSrc[level];
-        // dragon.img.style.animation = `level${level+2} 3s linear forwards`;
-        // // }
-        // setTimeout(function(){
-        //     isAttacking = false;
-        //     firstAttack = true;
-        //     level += 1;
-        //     levelFlag = false;
-        //     dragon.img.src = standSrc[level];
-        //     dragon.img.style.background = null;
-        //     dragon.img.style.animation = null;
-        //     start();
-        //     dragonMoveKeyStart();
-        // },3100);
     }
 }
 //开始游戏

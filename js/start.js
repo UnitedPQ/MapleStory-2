@@ -10,7 +10,9 @@ function start() {
     bulletMoveInter = setInterval(bulletMove,20);
     dragonMoveIn = setInterval(dragonMove,5);
     levelInterval = setInterval(levelUp,1);
-
+    createBossInter = setInterval(createBoss,15000);
+    bossMoveInter = setInterval(bossMove,20);
+    createBossBullet = setInterval(bossBulletFun,5000);
 }
 
 function pause() {
@@ -24,4 +26,7 @@ function pause() {
     clearInterval(bulletMoveInter);
     clearInterval(dragonMoveIn);
     clearInterval(levelInterval);
+    clearInterval(createBossInter);
+    clearInterval(bossMoveInter);
+    clearInterval(createBossBullet);
 }
